@@ -1,0 +1,2 @@
+rootProject.name='Emotional Face View'
+include ':app'
