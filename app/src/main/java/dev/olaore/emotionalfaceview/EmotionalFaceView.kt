@@ -1,15 +1,14 @@
 package dev.olaore.emotionalfaceview
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
+import kotlin.math.min
 
 /**
  * TODO: document your custom view class.
@@ -24,11 +23,44 @@ class EmotionalFaceView @JvmOverloads
     var mouthColor = Color.BLACK
     var borderColor = Color.BLACK
 
+    var horizontalSize: Int = 0
+    var verticalSize: Int = 0
+
+    var mouthPath = Path()
+
     var borderWidth = 4.0f
     var size = 320
 
-    init {
+    var state = 0
 
+    init {
+        horizontalSize = paddingLeft + paddingRight + width
+        verticalSize = paddingTop + paddingBottom + height
+
+        val typedArray = ctx.obtainStyledAttributes(attributeSet, R.styleable.EmotionalFaceView)
+
+        try {
+
+            faceColor = typedArray.getColor(R.styleable.EmotionalFaceView_faceColor, Color.YELLOW)
+            eyesColor = typedArray.getColor(R.styleable.EmotionalFaceView_eyesColor, Color.BLACK)
+            mouthColor = typedArray.getColor(R.styleable.EmotionalFaceView_mouthColor, Color.BLACK)
+            borderColor = typedArray.getColor(R.styleable.EmotionalFaceView_borderColor, Color.BLACK)
+
+            borderWidth = toDP(typedArray.getDimension(R.styleable.EmotionalFaceView_borderWidth, 4f)).toFloat()
+            state = typedArray.getInt(R.styleable.EmotionalFaceView_state, 0)
+
+        } finally {
+            typedArray.recycle()
+        }
+
+    }
+
+    private fun toDP(value: Float): Int {
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            value,
+            ctx.resources.displayMetrics
+        ).toInt()
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -73,7 +105,29 @@ class EmotionalFaceView @JvmOverloads
     }
 
     private fun drawMouth(canvas: Canvas?) {
+        if (state == 0) {
+            mouthPath.moveTo(size * 0.22f, size * 0.7f)
+            mouthPath.quadTo(size * 0.5f, size * 0.8f, size * 0.78f, size * 0.7f)
+            mouthPath.quadTo(size * 0.5f, size * 0.9f, size * 0.22f, size * 0.7f)
 
+            paint.color = mouthColor
+
+        } else {
+            mouthPath.moveTo(size * 0.22f, size * 0.7f)
+            mouthPath.quadTo(size * 0.5f, size * 0.5f, size * 0.78f, size * 0.7f)
+            mouthPath.quadTo(size * 0.5f, size * 0.6f, size * 0.22f, size * 0.7f)
+
+            paint.color = Color.RED
+        }
+        paint.style = Paint.Style.FILL
+        canvas?.drawPath(mouthPath, paint)
+
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        val size = Math.min(measuredWidth, measuredHeight)
+        setMeasuredDimension(size, size)
     }
 
 }

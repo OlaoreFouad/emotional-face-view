@@ -5,6 +5,10 @@
 
     <dev.olaore.emotionalfaceview.EmotionalFaceView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        app:faceColor="@android:color/holo_blue_bright"
+        app:eyesColor="@android:color/darker_gray"
+        app:mouthColor="@color/colorAccent"
+        app:borderColor="@color/colorAccent"
+        app:state="sad"
+        android:layout_height="match_parent"/>
 </FrameLayout>
